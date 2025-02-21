@@ -7,6 +7,7 @@ import {
   signInWithEmailAndPassword,
   signInWithPopup,
 } from "firebase/auth";
+import {addDoc, collection, getFirestore} from 'firebase/firestore'
 
 /************************************* Context **************************************************/
 const { createContext, useContext, useEffect, useState } = require("react");
@@ -17,6 +18,8 @@ export const useFirebase = () => useContext(FirebaseContext);
 
 // creating instance of auth
 const firebaseAuth = getAuth(firebaseApp);
+const firestore = getFirestore(firebaseApp)
+
 const googleProvider = new GoogleAuthProvider();
 
 export const FirebaseProvider = (props) => {
@@ -55,6 +58,23 @@ export const FirebaseProvider = (props) => {
     });
   };
 
+  console.log(user)
+
+  // Firestore 
+  const handleCreateNewListing = async (name, isbnNumber, price, coverPicURL) => {
+    return await addDoc(collection(firestore, 'books'), {
+      name, 
+      isbnNumber,
+      price, 
+      coverPicURL,
+      userId : user.uid,
+      userEmail : user.email,
+      displayName : user.displayName,
+      photoURL : user.photoURL
+    })
+    // console.log({name, isbnNumber, price, coverPicURL})
+  }
+
   const isLogged = user ? true : false;
 
   const appInfo = {
@@ -63,6 +83,7 @@ export const FirebaseProvider = (props) => {
     signinWithGoogle,
     user,
     isLogged,
+    handleCreateNewListing
   };
 
   return (
